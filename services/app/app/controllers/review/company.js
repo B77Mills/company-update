@@ -46,9 +46,18 @@ export default Controller.extend(ActionMixin, {
     const payload = this.get('model.submission.payload') || {};
     const company = this.get('model.company');
     return Object.keys(payload).reduce((obj, k) => {
+      if (k === 'youtube') {
+        // const youtubeKeys = { username: true, channelId: true, playlistId: true };
+        return Object.keys(payload[k]).reduce((o, subK) => {
+          const pv = get(payload, `${k}.${subK}`);
+          const cv = get(company, `${k}.${subK}`);
+          return eq(pv, cv) ? o : { ...o, [k]: { [subK]: false } };
+        }, {});
+    } else {
       const pv = get(payload, k);
       const cv = get(company, k);
-      return eq(pv, cv) ? obj : { ...obj, [k]: true };
+      return eq(pv, cv) ? obj : { ...obj, [k]: false };
+    }
     }, {});
   }),
 
@@ -66,9 +75,13 @@ export default Controller.extend(ActionMixin, {
   },
 
   actions: {
-    toggleField(key) {
-      const v = Boolean(this.get(`payload.${key}`));
-      set(this, `payload.${key}`, !v);
+    toggleField(key, subKey) {
+      const v = subKey ? Boolean(this.get(`payload.${key}.${subKey}`)): Boolean(this.get(`payload.${key}`));
+      if(subKey) {
+        set(this, `payload.${key}.${subKey}`, !v);
+      } else {
+        set(this, `payload.${key}`, !v);
+      }
     },
     async publish() {
       this.startAction();

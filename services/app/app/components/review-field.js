@@ -7,6 +7,7 @@ export default Component.extend({
   original: null,
   updated: null,
   fieldKey: null,
+  subField: null,
   long: false,
   _approvable: true,
 
@@ -26,7 +27,7 @@ export default Component.extend({
 
   actions: {
     toggle() {
-      this.toggleField(this.get('fieldKey'));
+      this.toggleField(this.get('fieldKey'), this.get('subField'));
     },
   },
 
